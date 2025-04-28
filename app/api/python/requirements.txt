@@ -1,0 +1,12 @@
+Flask
+Werkzeug
+python-dotenv
+langchain-openai
+langchain-pinecone
+langchain
+pinecone-client
+langsmith
+flask-cors
+psycopg2-binary
+google-generativeai==0.3.2
+python-docx
