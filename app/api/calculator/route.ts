@@ -14,66 +14,62 @@ const ANALYSIS_PROMPT = `Analyze this food image and provide a comprehensive nut
 
 2. Confidence Score: Provide a confidence level (0-100%)
 
-3. 
+3. Detailed Analysis:
    Break down the following aspects:
-   - Items Identified: List the items in the image
-   - Caloric Content: Analyze the caloric density and impact
-   - Macronutrients: Evaluate proteins, fats, carbohydrates present
+   - Items Identified: List the items in the image 
+   - Caloric Content: Analyze the caloric density and impact (provide specific range)
+   - Macronutrients: Evaluate proteins, fats, carbohydrates present with estimated ranges
    - Processing Level: Assess how processed the foods are
    - Nutritional Profile: Identify key nutrients present or lacking
    - Health Implications: Discuss potential health effects
    - Portion Considerations: Comment on serving sizes if relevant
 
-4. 
-   Please provide the nutritional information in the following format:
+4. Nutritional Information:
+   Based on standard serving size or visible portion, estimate the following values.
+   If exact values cannot be determined, provide a reasonable range based on standard nutritional databases.
+   DO NOT return NaN or leave values empty. Use approximations based on similar foods if needed.
 
    Dish Name: [name of the dish]
-   Calories: [number] kcal
+   Estimated Serving Size: [number] g/ml
+   Calories: [number, use range if uncertain e.g. 300-350] kcal
 
-   
-   - Carbohydrates: [number] g
-   - Proteins: [number] g
-   - Fats: [number] g
-   - Fiber: [number] g
-   
+   Macronutrients (per serving):
+   - Carbohydrates: [number or range] g
+   - Proteins: [number or range] g
+   - Fats: [number or range] g
+   - Fiber: [number or range] g
+   - Water Content: [number or range] ml
 
-   Vitamins:
-   - Vitamin A: [number] mcg
-   - Vitamin B1: [number] mg
-   - Vitamin B2: [number] mg
-   - Vitamin B3: [number] mg
-   - Vitamin B5: [number] mg
-   - Vitamin B6: [number] mg
-   - Vitamin B12: [number] mcg
-   - Vitamin C: [number] mg
-   - Vitamin D: [number] IU
-   - Vitamin E: [number] mg
-   - Vitamin K: [number] mcg
+   Vitamins (per serving):
+   - Vitamin A: [number or range] mcg
+   - Vitamin B1: [number or range] mg
+   - Vitamin B2: [number or range] mg
+   - Vitamin B3: [number or range] mg
+   - Vitamin B5: [number or range] mg
+   - Vitamin B6: [number or range] mg
+   - Vitamin B12: [number or range] mcg
+   - Vitamin C: [number or range] mg
+   - Vitamin D: [number or range] IU
+   - Vitamin E: [number or range] mg
+   - Vitamin K: [number or range] mcg
 
-   
-   - Calcium: [number] mg
-   - Iron: [number] mg
-   - Zinc: [number] mg
-   - Magnesium: [number] mg
-   - Potassium: [number] mg
-   - Sodium: [number] mg
-   - Phosphorus: [number] mg
-   - Selenium: [number] mcg
+   Minerals (per serving):
+   - Calcium: [number or range] mg
+   - Iron: [number or range] mg
+   - Zinc: [number or range] mg
+   - Magnesium: [number or range] mg
+   - Potassium: [number or range] mg
+   - Sodium: [number or range] mg
+   - Phosphorus: [number or range] mg
+   - Selenium: [number or range] mcg
 
 Format your response exactly as:
 Category: [category]
 Confidence: [number]%
 
+[Provide detailed analysis starting with items identified, don't mention "analysis" as heading]
 
-[Provide detailed analysis start with items identified dont mention analysis as heading in the response]
-
-
-[Formatted nutritional breakdown as specified above]
-
-No provide any disclaimers or warnings, note at end of the response
-`;
-
-
+[Formatted nutritional breakdown as specified above]`;
 
 // Medication alert prompt template
 const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's medication details, provide a brief medication alert about potential interactions.
