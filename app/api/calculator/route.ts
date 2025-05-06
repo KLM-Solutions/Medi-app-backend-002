@@ -17,8 +17,8 @@ const ANALYSIS_PROMPT = `Analyze this food image and provide a comprehensive nut
 3. Detailed Analysis:
    Break down the following aspects:
    - Items Identified: List the items in the image 
-   - Caloric Content: Analyze the caloric density and impact (provide specific range)
-   - Macronutrients: Evaluate proteins, fats, carbohydrates present with estimated ranges
+   - Caloric Content: Analyze the caloric density and impact 
+   - Macronutrients: Evaluate proteins, fats, carbohydrates present 
    - Processing Level: Assess how processed the foods are
    - Nutritional Profile: Identify key nutrients present or lacking
    - Health Implications: Discuss potential health effects
