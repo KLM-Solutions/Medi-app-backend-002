@@ -27,6 +27,9 @@ export default function MedsPage() {
     timeOfDay: [],
     notes: ''
   });
+  const [suggestions, setSuggestions] = useState<{ name: string; strength: string }[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [availableStrengths, setAvailableStrengths] = useState<string[]>([]);
 
   const timeOptions = ['Morning', 'Afternoon', 'Evening', 'Bedtime'];
 
@@ -73,6 +76,26 @@ export default function MedsPage() {
     setMedications(updatedMedications);
     localStorage.setItem('medications', JSON.stringify(updatedMedications));
     toast.success('Medication deleted successfully');
+  };
+
+  const fetchSuggestions = async (query: string) => {
+    if (!query) {
+      setSuggestions([]);
+      return;
+    }
+    setLoadingSuggestions(true);
+    try {
+      const res = await fetch(`/api/meddb?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.success) {
+        setSuggestions(data.suggestions);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (err) {
+      setSuggestions([]);
+    }
+    setLoadingSuggestions(false);
   };
 
   return (
@@ -135,22 +158,67 @@ export default function MedsPage() {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <label className="text-sm font-medium">Medication Name</label>
                   <Input
                     placeholder="Enter medication name"
                     value={newMedication.name}
-                    onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewMedication(prev => ({ ...prev, name: value }));
+                      fetchSuggestions(value);
+                      setAvailableStrengths([]);
+                      setNewMedication(prev => ({ ...prev, dosage: '' }));
+                    }}
+                    autoComplete="off"
                   />
+                  {loadingSuggestions && <div className="text-xs text-gray-400">Loading...</div>}
+                  {suggestions.length > 0 && (
+                    <ul className="border rounded bg-white shadow max-h-40 overflow-y-auto mt-1 z-50 absolute w-full">
+                      {suggestions.map((s, idx) => (
+                        <li
+                          key={idx}
+                          className="px-3 py-2 hover:bg-[#FE3301]/10 cursor-pointer"
+                          onClick={() => {
+                            setNewMedication(prev => ({
+                              ...prev,
+                              name: s.name,
+                              dosage: ''
+                            }));
+                            const strengths = suggestions
+                              .filter(sug => sug.name === s.name && sug.strength)
+                              .map(sug => sug.strength);
+                            setAvailableStrengths(Array.from(new Set(strengths)));
+                            setSuggestions([]);
+                          }}
+                        >
+                          <span className="font-medium">{s.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Dosage</label>
-                  <Input
-                    placeholder="e.g., 50mg"
-                    value={newMedication.dosage}
-                    onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
-                  />
+                  {availableStrengths.length > 0 ? (
+                    <select
+                      className="w-full border rounded px-3 py-2"
+                      value={newMedication.dosage}
+                      onChange={e => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                    >
+                      <option value="">Select dosage</option>
+                      {availableStrengths.map((strength, idx) => (
+                        <option key={idx} value={strength}>{strength}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Input
+                      placeholder="e.g., 50mg"
+                      value={newMedication.dosage}
+                      onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-2">
