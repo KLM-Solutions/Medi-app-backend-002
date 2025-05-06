@@ -40,29 +40,7 @@ const ANALYSIS_PROMPT = `Analyze this food image and provide a comprehensive nut
    - Fiber: [number or range] g
    - Water Content: [number or range] ml
 
-   Vitamins (per serving):
-   - Vitamin A: [number or range] mcg
-   - Vitamin B1: [number or range] mg
-   - Vitamin B2: [number or range] mg
-   - Vitamin B3: [number or range] mg
-   - Vitamin B5: [number or range] mg
-   - Vitamin B6: [number or range] mg
-   - Vitamin B12: [number or range] mcg
-   - Vitamin C: [number or range] mg
-   - Vitamin D: [number or range] IU
-   - Vitamin E: [number or range] mg
-   - Vitamin K: [number or range] mcg
-
-   Minerals (per serving):
-   - Calcium: [number or range] mg
-   - Iron: [number or range] mg
-   - Zinc: [number or range] mg
-   - Magnesium: [number or range] mg
-   - Potassium: [number or range] mg
-   - Sodium: [number or range] mg
-   - Phosphorus: [number or range] mg
-   - Selenium: [number or range] mcg
-
+   
 Format your response exactly as:
 Category: [category]
 Confidence: [number]%
