@@ -54,22 +54,6 @@ const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's
 Medications:
 {{medications}}
 Instructions:
-For each medication, provide a numbered response in the following format:
-
-1. [Medication Name]
-Category: [category]
-Severity: [severity]
-Alert: [two-line summary]
-Recommendation: [optional tip]
-
-2. [Medication Name]
-Category: [category]
-Severity: [severity]
-Alert: [two-line summary]
-Recommendation: [optional tip]
-
-[And so on for each medication...]
-Format your response with clear numbering for each medication, making it easy to read and understand.
 Your task:
 Identify any food–medication interactions or influences on efficacy
 Categorize findings using the following:
