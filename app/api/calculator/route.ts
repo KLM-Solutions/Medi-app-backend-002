@@ -55,12 +55,12 @@ Medications:
 {{medications}}
 Instructions:
 Your task:
-Identify any food–medication **interactions** or *influences on efficacy
+Identify any food–medication interactions or influences on efficacy
 Categorize findings using the following:
-**Category**: ["Direct Interaction", "Efficacy Consideration", "Nutritional Synergy", "No Known Concern"]
-**Severity**: ["Low", "Moderate", "High"]
-**Alert**: A two-line summary explaining either the concern or helpful tip
-**Recommendation**: Optional tip about moderation, timing, or complementary foods to offset risk or boost benefit
+Category: ["Direct Interaction", "Efficacy Consideration", "Nutritional Synergy", "No Known Concern"]
+Severity: ["Low", "Moderate", "High"]
+Alert: A two-line summary explaining either the concern or helpful tip
+Recommendation: Optional tip about moderation, timing, or complementary foods to offset risk or boost benefit
 Guidance:
 Do not issue black-and-white “avoid this” warnings unless medically critical.
 If the food might blunt the medication’s effect (e.g., high sodium reducing BP med efficacy), clearly state that.
