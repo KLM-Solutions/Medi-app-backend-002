@@ -69,6 +69,10 @@ Avoid over-medicalizing. Speak like a supportive health coach.
 If no concerns exist:
 Category: No Known Concern 
 Alert: No meaningful interactions or concerns with this meal and medication. 
+
+I will add the formatting steps as well:
+1.so every heading should be covered by "**" 
+2.the definiton for each heading should not have break or new line.
 `;
 
 // Initialize Gemini Pro Vision
