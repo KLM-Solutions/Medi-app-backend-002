@@ -50,19 +50,31 @@ Confidence: [number]%
 [Formatted nutritional breakdown as specified above]`;
 
 // Medication alert prompt template
-const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's medication details, provide a brief medication alert about potential interactions.
+const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's medication details, provide a brief medication alert about potential interactions.The goal is to provide not just warnings, but a helpful and balanced analysis—especially for users managing chronic conditions like hypertension, diabetes, or high cholesterol.
 Medications:
 {{medications}}
 Instructions:
-Analyze the food analysis and medication list in the context of timing.
-For each concern, return a categorized advisory**:
-**Category**: ["Absorption Interference", "Metabolic Conflict", "Side Effect Amplifier", "Delayed Effect", "No Known Concern"]
+Your task:
+Identify any food–medication **interactions** or *influences on efficacy
+Categorize findings using the following:
+**Category**: ["Direct Interaction", "Efficacy Consideration", "Nutritional Synergy", "No Known Concern"]
 **Severity**: ["Low", "Moderate", "High"]
-**Alert**: A two-line summary with a clear explanation and recommendation.
-If no issues are found:
+**Alert**: A two-line summary explaining either the concern or helpful tip
+**Recommendation**: Optional tip about moderation, timing, or complementary foods to offset risk or boost benefit
+Guidance:
+Do not issue black-and-white “avoid this” warnings unless medically critical.
+If the food might blunt the medication’s effect (e.g., high sodium reducing BP med efficacy), clearly state that.
+If the food offers no concern or even complements the medication’s goal, highlight it positively.
+Avoid over-medicalizing. Speak like a supportive health coach.
+Format Example:
+Category: Efficacy Consideration 
+Severity: Moderate 
+Alert: *Olmesartan* works best with controlled sodium intake. This meal’s high sodium may reduce its BP-lowering effect. 
+Recommendation: Balance with low-sodium meals later and drink plenty of water.
+If no concerns exist:
 Category: No Known Concern 
-Alert: No known issues with the listed foods and medications.
-Important: Be concise and only highlight **meaningful** interactions. Do not invent interactions without credible basis.`;
+Alert: No meaningful interactions or concerns with this meal and medication. 
+`;
 
 // Initialize Gemini Pro Vision
 
