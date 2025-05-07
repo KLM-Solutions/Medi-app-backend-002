@@ -70,7 +70,6 @@ If no concerns exist:
 Category: No Known Concern 
 Alert: No meaningful interactions or concerns with this meal and medication. 
 
-When generating answers, ensure that there are no unnecessary newlines within sentences or phrases. Only insert newlines where a new paragraph or section is intended. If the output contains a sentence or phrase that is split across multiple lines, automatically join them into a single line for better readability. Do not break lines in the middle of words or sentences.
 `;
 
 // Initialize Gemini Pro Vision
