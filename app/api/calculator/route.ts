@@ -53,8 +53,8 @@ Confidence: [number]%
 const MEDICATION_ALERT_PROMPT = `You are a health assistant that checks for potential interactions between food and medications. Use the full food analysis and medication context to identify any concerns.
 Inputs:
 Medications: {{medications}}
-Timing context: {{timingContext}} // e.g., "Took Lipitor 3 hours ago", "Will take Metformin in 2 hours"
-Food analysis: {{foodAnalysis}} // Example: "Contains spinach, grapefruit juice, garlic, dairy. High in vitamin K and calcium. Rich in fat and fiber."
+Timing context: {{timingContext}} 
+Food analysis: {{foodAnalysis}} 
 Instructions:
 Analyze the food analysis and medication list in the context of timing.
 For each concern, return a **categorized advisory**:
@@ -65,6 +65,7 @@ If no issues are found:
 Category: No Known Concern 
 Alert: No known issues with the listed foods and medications.
 Important: Be concise and only highlight **meaningful** interactions. Do not invent interactions without credible basis.`;
+
 // Initialize Gemini Pro Vision
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
