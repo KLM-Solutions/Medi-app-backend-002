@@ -50,19 +50,24 @@ Confidence: [number]%
 [Formatted nutritional breakdown as specified above]`;
 
 // Medication alert prompt template
-const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's medication details, provide a brief medication alert about potential interactions.
-
-Medications:
-{{medications}}
-
-Provide a concise medication alert in two lines or less that states:
-1. Whether the food should be consumed based on the medication profile
-
-
-Example format:
-[Medication name] and [food component] may [interaction effect]. [Brief recommendation about timing or alternatives].`;
+const MEDICATION_ALERT_PROMPT = `You are a health assistant that checks for potential interactions between food and medications. Use the full food analysis and medication context to identify any concerns.
+Inputs:
+Medications: {{medications}}
+Timing context: {{timingContext}} // e.g., "Took Lipitor 3 hours ago", "Will take Metformin in 2 hours"
+Food analysis: {{foodAnalysis}} // Example: "Contains spinach, grapefruit juice, garlic, dairy. High in vitamin K and calcium. Rich in fat and fiber."
+Instructions:
+Analyze the food analysis and medication list in the context of timing.
+For each concern, return a **categorized advisory**:
+**Category**: ["Absorption Interference", "Metabolic Conflict", "Side Effect Amplifier", "Delayed Effect", "No Known Concern"]
+**Severity**: ["Low", "Moderate", "High"]
+**Alert**: A two-line summary with a clear explanation and recommendation.
+If no issues are found:
+Category: No Known Concern 
+Alert: No known issues with the listed foods and medications.
+Important: Be concise and only highlight **meaningful** interactions. Do not invent interactions without credible basis.`;
 
 // Initialize Gemini Pro Vision
+
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
