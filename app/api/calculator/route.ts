@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from 'zod';
 
+
 // Analysis prompt for food image processing
 const ANALYSIS_PROMPT = `Analyze this food image and provide a comprehensive nutritional analysis:
 
