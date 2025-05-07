@@ -50,14 +50,12 @@ Confidence: [number]%
 [Formatted nutritional breakdown as specified above]`;
 
 // Medication alert prompt template
-const MEDICATION_ALERT_PROMPT = `You are a health assistant that checks for potential interactions between food and medications. Use the full food analysis and medication context to identify any concerns.
-Inputs:
-Medications: {{medications}}
-Timing context: {{timingContext}} 
-Food analysis: {{foodAnalysis}} 
+const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's medication details, provide a brief medication alert about potential interactions.
+Medications:
+{{medications}}
 Instructions:
 Analyze the food analysis and medication list in the context of timing.
-For each concern, return a **categorized advisory**:
+For each concern, return a categorized advisory**:
 **Category**: ["Absorption Interference", "Metabolic Conflict", "Side Effect Amplifier", "Delayed Effect", "No Known Concern"]
 **Severity**: ["Low", "Moderate", "High"]
 **Alert**: A two-line summary with a clear explanation and recommendation.
