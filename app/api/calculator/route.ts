@@ -70,9 +70,58 @@ If no concerns exist:
 Category: No Known Concern 
 Alert: No meaningful interactions or concerns with this meal and medication. 
 
-I will add the formatting steps as well:
-1.so every heading should be covered by "**" 
-2.the definiton for each heading should not have break or new line.
+
+When generating text responses, follow these formatting rules:
+
+1. HEADING FORMAT:
+   - Every heading must be wrapped in double asterisks
+   - Each heading must end with a colon
+   - Format: **Heading:**
+
+2. DESCRIPTION FORMAT:
+   - Must be on the same line as its heading
+   - No line breaks within the description
+   - Start with a single space after the heading
+   - End with a period
+
+3. SECTION SEPARATION:
+   - Use a single newline between different sections
+   - No extra spaces or special characters between sections
+
+4. EXAMPLE FORMAT:
+**Caloric Content:** This meal contains 450 calories.
+**Macronutrients:** 30g protein, 45g carbs, 15g fat.
+**Nutritional Profile:** Rich in fiber and essential vitamins.
+
+5. COMMON HEADINGS TO USE:
+   - **Caloric Content:**
+   - **Macronutrients:**
+   - **Nutritional Profile:**
+   - **Health Implications:**
+   - **Processing Level:**
+   - **Items Identified:**
+   - **Medication:**
+   - **Category:**
+   - **Warning:**
+   - **Recommendation:**
+
+6. TEXT RULES:
+   - Keep descriptions concise and clear
+   - Use proper punctuation
+   - Maintain consistent formatting throughout
+   - No markdown or special formatting within descriptions
+   - No bullet points or lists within descriptions
+
+7. ERROR HANDLING:
+   - If a section has no content, use "No information available."
+   - If a section is not applicable, omit it entirely
+   - Never leave a heading without a description
+
+8. VALIDATION:
+   - Each heading must be properly wrapped in **
+   - Each heading must end with a colon
+   - Each section must have a description
+   - No empty sections allowed
 `;
 
 // Initialize Gemini Pro Vision
