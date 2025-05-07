@@ -54,6 +54,22 @@ const MEDICATION_ALERT_PROMPT = `Based on the food image analysis and the user's
 Medications:
 {{medications}}
 Instructions:
+For each medication, provide a numbered response in the following format:
+
+1. [Medication Name]
+Category: [category]
+Severity: [severity]
+Alert: [two-line summary]
+Recommendation: [optional tip]
+
+2. [Medication Name]
+Category: [category]
+Severity: [severity]
+Alert: [two-line summary]
+Recommendation: [optional tip]
+
+[And so on for each medication...]
+Format your response with clear numbering for each medication, making it easy to read and understand.
 Your task:
 Identify any food–medication interactions or influences on efficacy
 Categorize findings using the following:
@@ -62,9 +78,9 @@ Severity: ["Low", "Moderate", "High"]
 Alert: A two-line summary explaining either the concern or helpful tip
 Recommendation: Optional tip about moderation, timing, or complementary foods to offset risk or boost benefit
 Guidance:
-Do not issue black-and-white “avoid this” warnings unless medically critical.
-If the food might blunt the medication’s effect (e.g., high sodium reducing BP med efficacy), clearly state that.
-If the food offers no concern or even complements the medication’s goal, highlight it positively.
+Do not issue black-and-white "avoid this" warnings unless medically critical.
+If the food might blunt the medication's effect (e.g., high sodium reducing BP med efficacy), clearly state that.
+If the food offers no concern or even complements the medication's goal, highlight it positively.
 Avoid over-medicalizing. Speak like a supportive health coach.
 If no concerns exist:
 Category: No Known Concern 
@@ -150,13 +166,8 @@ export async function POST(request: Request) {
     // Extract and prepare the image data
     const imageBytes = extractImageData(imageData);
 
-    // Set up streaming response
-    const encoder = new TextEncoder();
-    const stream = new TransformStream();
-    const writer = stream.writable.getWriter();
-
-    // Generate food analysis content with streaming
-    const result = await model.generateContentStream({
+    // Generate food analysis content
+    const result = await model.generateContent({
       contents: [{
         role: "user",
         parts: [
@@ -171,94 +182,77 @@ export async function POST(request: Request) {
       }]
     });
 
-    // Store the full food analysis text
-    let fullAnalysisText = '';
+    // Get the full food analysis text
+    const fullAnalysisText = result.response.text();
+    console.log('Food Analysis Response:', fullAnalysisText);
 
-    // Process the food analysis stream
-    (async () => {
-      try {
-        // First, process the food analysis
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) {
-            fullAnalysisText += text;
-            await writer.write(
-              encoder.encode(`data: ${JSON.stringify({ content: text, type: 'analysis' })}\n\n`)
-            );
-          }
+    let response = {
+      id: crypto.randomUUID(),
+      object: "completion",
+      created: Math.floor(Date.now() / 1000),
+      model: "gemini-1.5-flash-latest",
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: "assistant",
+            content: fullAnalysisText
+          },
+          finish_reason: "stop"
         }
+      ]
+    };
 
-        // Now check if we need to generate medication alerts
-        if (medications && medications.length > 0) {
-          // Format medications for the prompt
-          const medicationsText = medications.map(med => 
-            `- ${med.name} (${med.dosage}, ${med.frequency}, taken: ${med.timeOfDay.join(', ')})${med.notes ? ` - Notes: ${med.notes}` : ''}`
-          ).join('\n');
-          
-          // Prepare the medication alert prompt
-          const alertPrompt = MEDICATION_ALERT_PROMPT.replace('{{medications}}', medicationsText);
-          
-          // Generate medication alert
-          const alertResult = await model.generateContentStream({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  { text: fullAnalysisText }
-                ]
-              },
-              {
-                role: "assistant",
-                parts: [
-                  { text: fullAnalysisText }
-                ]
-              },
-              {
-                role: "user",
-                parts: [
-                  { text: alertPrompt }
-                ]
-              }
+    // Now check if we need to generate medication alerts
+    if (medications && medications.length > 0) {
+      // Format medications for the prompt
+      const medicationsText = medications.map(med => 
+        `- ${med.name} (${med.dosage}, ${med.frequency}, taken: ${med.timeOfDay.join(', ')})${med.notes ? ` - Notes: ${med.notes}` : ''}`
+      ).join('\n');
+      
+      // Prepare the medication alert prompt
+      const alertPrompt = MEDICATION_ALERT_PROMPT.replace('{{medications}}', medicationsText);
+      
+      // Generate medication alert
+      const alertResult = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: fullAnalysisText }
             ]
-          });
-          
-          // Send a separator to indicate start of medication alerts
-          await writer.write(
-            encoder.encode(`data: ${JSON.stringify({ content: "\n\n---MEDICATION_ALERT_START---\n\n", type: 'separator' })}\n\n`)
-          );
-          
-          // Process the medication alert stream
-          for await (const chunk of alertResult.stream) {
-            const text = chunk.text();
-            if (text) {
-              await writer.write(
-                encoder.encode(`data: ${JSON.stringify({ content: text, type: 'medication_alert' })}\n\n`)
-              );
-            }
+          },
+          {
+            role: "assistant",
+            parts: [
+              { text: fullAnalysisText }
+            ]
+          },
+          {
+            role: "user",
+            parts: [
+              { text: alertPrompt }
+            ]
           }
+        ]
+      });
 
-          // Send a separator to indicate end of medication alerts
-          await writer.write(
-            encoder.encode(`data: ${JSON.stringify({ content: "\n\n---MEDICATION_ALERT_END---\n\n", type: 'separator' })}\n\n`)
-          );
-        }
-        
-        await writer.write(encoder.encode('data: [DONE]\n\n'));
-        await writer.close();
-      } catch (error) {
-        console.error('Streaming error:', error);
-        await writer.abort(error);
-      }
-    })();
+      const medicationAlertText = alertResult.response.text();
+      console.log('Medication Alert Response:', medicationAlertText);
 
-    // Return the streaming response
-    return new Response(stream.readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+      // Add medication alerts as a second choice
+      response.choices.push({
+        index: 1,
+        message: {
+          role: "assistant",
+          content: medicationAlertText
+        },
+        finish_reason: "stop"
+      });
+    }
+
+    console.log('Final Response Object:', JSON.stringify(response, null, 2));
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Error in POST handler:', error);
