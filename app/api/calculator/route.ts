@@ -70,6 +70,10 @@ If no concerns exist:
 Category: No Known Concern 
 Alert: No meaningful interactions or concerns with this meal and medication. 
 
+you should follow this
+1.Text to be in a single paragraph (no line breaks)
+2.Headings should be surrounded by double asterisks (Heading)
+
 `;
 
 // Initialize Gemini Pro Vision
