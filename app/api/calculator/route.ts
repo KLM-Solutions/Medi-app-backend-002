@@ -149,13 +149,8 @@ export async function POST(request: Request) {
     // Extract and prepare the image data
     const imageBytes = extractImageData(imageData);
 
-    // Set up streaming response
-    const encoder = new TextEncoder();
-    const stream = new TransformStream();
-    const writer = stream.writable.getWriter();
-
-    // Generate food analysis content with streaming
-    const result = await model.generateContentStream({
+    // Generate food analysis content
+    const result = await model.generateContent({
       contents: [{
         role: "user",
         parts: [
@@ -170,94 +165,55 @@ export async function POST(request: Request) {
       }]
     });
 
-    // Store the full food analysis text
-    let fullAnalysisText = '';
+    // Get the full food analysis text
+    const fullAnalysisText = result.response.text();
+    
+    // Prepare response object
+    const responseData = {
+      analysis: fullAnalysisText,
+      medication_alert: null as string | null
+    };
 
-    // Process the food analysis stream
-    (async () => {
-      try {
-        // First, process the food analysis
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) {
-            fullAnalysisText += text;
-            await writer.write(
-              encoder.encode(`data: ${JSON.stringify({ content: text, type: 'analysis' })}\n\n`)
-            );
-          }
-        }
-
-        // Now check if we need to generate medication alerts
-        if (medications && medications.length > 0) {
-          // Format medications for the prompt
-          const medicationsText = medications.map(med => 
-            `- ${med.name} (${med.dosage}, ${med.frequency}, taken: ${med.timeOfDay.join(', ')})${med.notes ? ` - Notes: ${med.notes}` : ''}`
-          ).join('\n');
-          
-          // Prepare the medication alert prompt
-          const alertPrompt = MEDICATION_ALERT_PROMPT.replace('{{medications}}', medicationsText);
-          
-          // Generate medication alert
-          const alertResult = await model.generateContentStream({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  { text: fullAnalysisText }
-                ]
-              },
-              {
-                role: "assistant",
-                parts: [
-                  { text: fullAnalysisText }
-                ]
-              },
-              {
-                role: "user",
-                parts: [
-                  { text: alertPrompt }
-                ]
-              }
+    // Check if we need to generate medication alerts
+    if (medications && medications.length > 0) {
+      // Format medications for the prompt
+      const medicationsText = medications.map(med => 
+        `- ${med.name} (${med.dosage}, ${med.frequency}, taken: ${med.timeOfDay.join(', ')})${med.notes ? ` - Notes: ${med.notes}` : ''}`
+      ).join('\n');
+      
+      // Prepare the medication alert prompt
+      const alertPrompt = MEDICATION_ALERT_PROMPT.replace('{{medications}}', medicationsText);
+      
+      // Generate medication alert
+      const alertResult = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: fullAnalysisText }
             ]
-          });
-          
-          // Send a separator to indicate start of medication alerts
-          await writer.write(
-            encoder.encode(`data: ${JSON.stringify({ content: "\n\n---MEDICATION_ALERT_START---\n\n", type: 'separator' })}\n\n`)
-          );
-          
-          // Process the medication alert stream
-          for await (const chunk of alertResult.stream) {
-            const text = chunk.text();
-            if (text) {
-              await writer.write(
-                encoder.encode(`data: ${JSON.stringify({ content: text, type: 'medication_alert' })}\n\n`)
-              );
-            }
+          },
+          {
+            role: "assistant",
+            parts: [
+              { text: fullAnalysisText }
+            ]
+          },
+          {
+            role: "user",
+            parts: [
+              { text: alertPrompt }
+            ]
           }
+        ]
+      });
+      
+      const medicationAlertText = alertResult.response.text();
+      responseData.medication_alert = medicationAlertText;
+    }
 
-          // Send a separator to indicate end of medication alerts
-          await writer.write(
-            encoder.encode(`data: ${JSON.stringify({ content: "\n\n---MEDICATION_ALERT_END---\n\n", type: 'separator' })}\n\n`)
-          );
-        }
-        
-        await writer.write(encoder.encode('data: [DONE]\n\n'));
-        await writer.close();
-      } catch (error) {
-        console.error('Streaming error:', error);
-        await writer.abort(error);
-      }
-    })();
-
-    // Return the streaming response
-    return new Response(stream.readable, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+    // Return the complete response
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Error in POST handler:', error);
